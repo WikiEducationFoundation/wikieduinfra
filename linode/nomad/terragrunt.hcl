@@ -1,9 +1,9 @@
-include {
-  path = find_in_parent_folders()
+terraform {
+  source = "../../modules//nomad"
 }
 
 dependency "linode" {
-  config_path = "../linode"
+  config_path = "../vm"
   mock_outputs_allowed_terraform_commands = ["init"]
   mock_outputs = {
     nomad_server_ip_address = "1"
@@ -37,6 +37,7 @@ inputs = {
   docker_domain = dependency.linode.outputs.docker_domain
   rails_domain = dependency.linode.outputs.rails_domain
   nomad_domain = dependency.linode.outputs.nomad_domain
+  path_to_certs = abspath("./certs")
 }
 
 terraform {
