@@ -21,6 +21,7 @@ This configuration:
    1. Create an A record to point the rails domain to the nginx node's IP address
    2. Create an A record to point the docker domain to the nginx node's IP address as well
 6. Run the provided ssl provision script (in `nomadserver` ) on the nginx node.
+   - To enable automatic cert renewals, add the provided `renew_nginx_ssl.sh` script to the server and run it weekly via crontab.
 
 ### Prepare the Rails app
 
