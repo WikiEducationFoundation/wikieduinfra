@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[ `whoami` = root ] || exec su -c $0 root
 
 # This script configures the nomad client for a generic node.
 # It includes a host volume named the same as the node name.

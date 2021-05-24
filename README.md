@@ -52,10 +52,14 @@ There are also some modules used by both `linode` and `wikimedia`:
 2. Ensure all binaries (below) are on your `PATH`
 3. From either the `linode` or `wikimedia` directories, `terragrunt run-all init`
 4. From the same directory, `terragrunt run-all apply`
+<<<<<<< HEAD
    1. This command will create all the required server nodes (`linode_instance` resources) followed by several non-Rails services (`nomad_job` and `consul_config_entry` resources).
    2. Using a `null_resource`, it will locally generate `nomad.sh`, which contains the data needed to post additional jobs (ie, the Rails jobs) to the cluster.
    3. Using a `null_resource`, it will install a waypoint server and runner onto one of the nodes. The `null_resource`s are normally only provisioned once, and then have entries in a `terraform.tfstate` file. If you need to re-run one of these, you can delete the corresponding resource entry from the `.tfstate` file.
    4. At this point, you can reach the Nomad UI by via `https://{nomad_server_ip_address}:4646`. The required ACL token Secret ID is the `nomad_mgmt_token`, also available on the Nomad server in `/root/bootstrap.token`.
+=======
+   1. At this point, you can reach the Nomad UI by via `https://{nomad_server_ip_address}:4646`. The required ACL token Secret ID is the `nomad_mgmt_token`, also available on the Nomad server in `~/bootstrap.token`.
+>>>>>>> 915180f (No more key checks)
 5. Configure DNS
    1. Create an A record to point the **rails domain** to the nginx node's IP address
    2. Create an A record to point the **docker domain** to the nginx node's IP address
@@ -167,6 +171,7 @@ We can also use the backup of the mariadb node to produce a database dump if nee
 * Configure the node to access `/data/mariadb` via mysql/mariadb (not via a container)
 * Use `mysqldump` to generate (and save on your computer) a dashboard.sql file.
 
+<<<<<<< HEAD
 ### Extending the nginx config
 
 To add a new domain to be handled by the nginx node of an up-and-running cluster:
@@ -224,3 +229,11 @@ Most of the core jobs are managed through terraform and have their own `.hcl.tmp
 * `nomad job status` - list all the allocated jobs
 * `nomad job stop waypoint-server` - kill a job
 * `nomad system gc` - run the garbage collector to clear out dead jobs and clients
+=======
+### Migration from V1 to V2
+
+1. Move the `linode/linode/terraform.tfstate` and `nomadserver/nomadserver.tfstate` files to `./linode.tfstate` and `./nomadserver.tfstate` respectively.
+1. Copy the `certs` directory you have to `./certs`.
+1. Update your checked-out code to v2 (git pull, whatever)
+1. `terragrunt run-all init` from `./`, twice.
+>>>>>>> 915180f (No more key checks)

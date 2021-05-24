@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[ `whoami` = root ] || exec su -c $0 root
 
 echo "Provisioning host with provision_host.sh..."
 sudo apt-get update -qq > /dev/null

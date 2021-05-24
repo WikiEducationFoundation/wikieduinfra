@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[ `whoami` = root ] || exec su -c $0 root
 
 echo "Provisioning via provision_agent.sh..."
 sudo apt-get update -qq > /dev/null
