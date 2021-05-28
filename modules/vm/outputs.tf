@@ -17,7 +17,6 @@ output "docker_domain" {
 output "rails_domain" {
   value = var.rails_domain
 }
-<<<<<<< HEAD
 
 output "nomad_domain" {
   value = var.nomad_domain
@@ -48,5 +47,3 @@ output "memcache_cpu_hertz" {
 output "memcache_memory" {
   value = "1000"
 }
-=======
->>>>>>> fe6ac90 (Move the sizing into variables)
