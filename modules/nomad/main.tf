@@ -23,6 +23,7 @@ locals {
   nomad_server_external_address = var.nomad_server_external_address != null ? var.nomad_server_external_address : var.nomad_server_ip_address
   db_node_count = var.mariadb == false ? 0 : 1
   bastion_host = var.bastion_host == null ? " " : var.bastion_host
+  nginx_template = var.mariadb == true ?"${path.module}/jobs/nginx.hcl.tmpl" : "${path.module}/jobs/nginx_nossl.hcl.tmpl"
 }
 
 data "external" "nomad_bootstrap_acl" {
@@ -253,12 +254,13 @@ resource "nomad_job" "docker_registry" {
 
 resource "nomad_job" "nginx" {
   jobspec = templatefile(
-              "${path.module}/jobs/nginx.hcl.tmpl",
+              local.nginx_template,
               {
                 "docker_domain" = var.docker_domain
                 "rails_domain" = var.rails_domain
                 "nomad_domain" = var.nomad_domain
                 "nomad_server_ip_address" = var.nomad_server_ip_address
+                "waypoint_domain" = var.waypoint_domain
               }
             )
 }
@@ -301,6 +303,7 @@ resource "null_resource" "nomad_shell" {
       export NOMAD_CLIENT_CERT="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0.pem"
       export NOMAD_CLIENT_KEY="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0-key.pem"
       export NOMAD_SKIP_VERIFY="true"
+      export DATABASE_URL="mysql2://wiki:wikiedu@127.0.0.1:3306/dashboard?pool=5"
     " >> ${var.path_to_certs}/../nomad.sh
     EOF
   }
