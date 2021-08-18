@@ -1,13 +1,12 @@
-include {
-  path = find_in_parent_folders()
-}
+remote_state {
+  backend = "local"
 
-terraform {
-  extra_arguments "common_vars" {
-    commands = ["plan", "apply", "destroy"]
+  generate = {
+    path      = "backend.tf"
+    if_exists = "skip"
+  }
 
-    arguments = [
-      "-var-file=./secrets.tfvars"
-    ]
+  config = {
+    path = "terraform.tfstate"
   }
 }

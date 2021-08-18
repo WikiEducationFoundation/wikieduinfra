@@ -15,31 +15,47 @@ terraform {
   }
 }
 
+data "local_file" "ssh_privkey" {
+  filename = var.ssh_privkey
+}
+
+locals {
+  nomad_server_external_address = var.nomad_server_external_address != null ? var.nomad_server_external_address : var.nomad_server_ip_address
+  db_node_count = var.mariadb == false ? 0 : 1
+  bastion_host = var.bastion_host == null ? " " : var.bastion_host
+  nginx_template = var.mariadb == true ?"${path.module}/jobs/nginx.hcl.tmpl" : "${path.module}/jobs/nginx_nossl.hcl.tmpl"
+}
+
+data "external" "nomad_bootstrap_acl" {
+  program = ["sh", "scripts/get_bootstrap.sh", data.local_file.ssh_privkey.filename, var.ssh_user, local.bastion_host]
+  query = { "ip_address" = var.nomad_server_ip_address }
+}
+
 # Nomad
 
 provider "nomad" {
-  address = "https://${var.nomad_server_ip_address}:4646"
-  secret_id = var.nomad_mgmt_token
-  ca_file = "../certs/nomad-agent-certs/nomad-agent-ca.pem"
-  cert_file = "../certs/nomad-agent-certs/global-client-nomad-0.pem"
-  key_file = "../certs/nomad-agent-certs/global-client-nomad-0-key.pem"
+  address = "https://${local.nomad_server_external_address}:4646"
+  secret_id = data.external.nomad_bootstrap_acl.result.token
+  ca_file = "${var.path_to_certs}/nomad-agent-certs/nomad-agent-ca.pem"
+  cert_file = "${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0.pem"
+  key_file = "${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0-key.pem"
 }
 
 # Consul, for creating intentions
 
 provider "consul" {
-  address = "${var.nomad_server_ip_address}:8501"
+  address = "${local.nomad_server_external_address}:8501"
   scheme = "https"
   token = var.consul_mgmt_token
-  ca_file = "../certs/consul-agent-certs/consul-agent-ca.pem"
-  cert_file = "../certs/consul-agent-certs/dc1-client-consul-0.pem"
-  key_file = "../certs/consul-agent-certs/dc1-client-consul-0-key.pem"
+  ca_file = "${var.path_to_certs}/consul-agent-certs/consul-agent-ca.pem"
+  cert_file = "${var.path_to_certs}/consul-agent-certs/dc1-client-consul-0.pem"
+  key_file = "${var.path_to_certs}/consul-agent-certs/dc1-client-consul-0-key.pem"
   insecure_https = true
 }
 
 resource "nomad_job" "redis" {
   jobspec = templatefile(
-              "${path.module}/nomad/jobs/redis.hcl.tmpl",
+              "${path.module}/jobs/redis.hcl.tmpl",
               {
                 "redis_cpu_hertz" = var.redis_cpu_hertz
                 "redis_memory" = var.redis_memory
@@ -101,7 +117,7 @@ resource "consul_config_entry" "redis" {
 
 resource "nomad_job" "memcache" {
   jobspec = templatefile(
-              "${path.module}/nomad/jobs/memcache.hcl.tmpl",
+              "${path.module}/jobs/memcache.hcl.tmpl",
               {
                 "memcache_cpu_hertz" = var.memcache_cpu_hertz
                 "memcache_memory" = var.memcache_memory
@@ -163,8 +179,10 @@ resource "consul_config_entry" "memcache" {
 }
 
 resource "nomad_job" "mariadb" {
+  count = local.db_node_count
+
   jobspec = templatefile(
-              "${path.module}/nomad/jobs/mariadb.hcl.tmpl",
+              "${path.module}/jobs/mariadb.hcl.tmpl",
               {
                 "db_cpu_hertz" = var.db_cpu_hertz
                 "db_memory" = var.db_memory
@@ -227,7 +245,7 @@ resource "consul_config_entry" "mariadb" {
 
 resource "nomad_job" "docker_registry" {
   jobspec = templatefile(
-              "${path.module}/nomad/jobs/docker_registry.hcl.tmpl",
+              "${path.module}/jobs/docker_registry.hcl.tmpl",
               {
                 "docker_pass_encrypted" = var.docker_pass_encrypted
               }
@@ -236,10 +254,11 @@ resource "nomad_job" "docker_registry" {
 
 resource "nomad_job" "nginx" {
   jobspec = templatefile(
-              "${path.module}/nomad/jobs/nginx.hcl.tmpl",
+              local.nginx_template,
               {
                 "docker_domain" = var.docker_domain
                 "rails_domain" = var.rails_domain
+                "waypoint_domain" = var.waypoint_domain
               }
             )
 }
@@ -276,26 +295,27 @@ resource "null_resource" "nomad_shell" {
   provisioner "local-exec" {
     command = <<EOF
     echo "
-      export NOMAD_ADDR="https://${var.nomad_server_ip_address}:4646"
-      export NOMAD_TOKEN=${var.nomad_mgmt_token}
-      export NOMAD_CA_PATH="${abspath(path.root)}/../certs/nomad-agent-certs/nomad-agent-ca.pem"
-      export NOMAD_CLIENT_CERT="${abspath(path.root)}/../certs/nomad-agent-certs/global-client-nomad-0.pem"
-      export NOMAD_CLIENT_KEY="${abspath(path.root)}/../certs/nomad-agent-certs/global-client-nomad-0-key.pem"
+      export NOMAD_ADDR="https://${local.nomad_server_external_address}:4646"
+      export NOMAD_TOKEN=${data.external.nomad_bootstrap_acl.result.token}
+      export NOMAD_CA_PATH="${var.path_to_certs}/nomad-agent-certs/nomad-agent-ca.pem"
+      export NOMAD_CLIENT_CERT="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0.pem"
+      export NOMAD_CLIENT_KEY="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0-key.pem"
       export NOMAD_SKIP_VERIFY="true"
-    " >> nomad.sh
+      export DATABASE_URL="mysql2://wiki:wikiedu@127.0.0.1:3306/dashboard?pool=5"
+    " >> ${var.path_to_certs}/../nomad.sh
     EOF
   }
 }
 
 resource "null_resource" "waypoint" {
   provisioner "local-exec" {
-    command = "waypoint install -platform=nomad -nomad-dc=dc1 -accept-tos"
+    command = "waypoint install -platform=nomad -nomad-dc=dc1 -accept-tos -docker-server-image=hashicorp/waypoint:0.3.1"
     environment = {
-      NOMAD_ADDR="https://${var.nomad_server_ip_address}:4646"
-      NOMAD_TOKEN=var.nomad_mgmt_token
-      NOMAD_CA_PATH="${abspath(path.root)}/../certs/nomad-agent-certs/nomad-agent-ca.pem"
-      NOMAD_CLIENT_CERT="${abspath(path.root)}/../certs/nomad-agent-certs/global-client-nomad-0.pem"
-      NOMAD_CLIENT_KEY="${abspath(path.root)}/../certs/nomad-agent-certs/global-client-nomad-0-key.pem"
+      NOMAD_ADDR="https://${local.nomad_server_external_address}:4646"
+      NOMAD_TOKEN=data.external.nomad_bootstrap_acl.result.token
+      NOMAD_CA_PATH="${var.path_to_certs}/nomad-agent-certs/nomad-agent-ca.pem"
+      NOMAD_CLIENT_CERT="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0.pem"
+      NOMAD_CLIENT_KEY="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0-key.pem"
       NOMAD_SKIP_VERIFY="true"
     }
   }

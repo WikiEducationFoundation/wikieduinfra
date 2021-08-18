@@ -28,10 +28,6 @@ variable "nginx_node_ip_address" {
   type = string
 }
 
-variable "nomad_mgmt_token" {
-  type = string
-}
-
 variable "consul_mgmt_token" {
   type = string
 }
@@ -65,5 +61,33 @@ variable "docker_domain" {
 }
 
 variable "rails_domain" {
+  type = string
+}
+
+variable "path_to_certs" {
+  type = string
+}
+
+variable "ssh_privkey" {
+  type = string
+}
+
+variable "ssh_user" {
+  type = string
+}
+
+variable "bastion_host" {
+  type = string
+}
+
+variable "nomad_server_external_address" {
+  type = string
+}
+
+variable "mariadb" {
+  type = bool
+}
+
+variable "waypoint_domain" {
   type = string
 }

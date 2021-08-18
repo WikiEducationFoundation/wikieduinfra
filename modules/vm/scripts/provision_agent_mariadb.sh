@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-sudo mkdir --parents /etc/nomad.d
-sudo chmod 700 /etc/nomad.d
 sudo mkdir -p /data/mariadb
-sudo touch /etc/nomad.d/client.hcl
 sudo echo "client {
   enabled = true
 
@@ -33,23 +30,23 @@ consul {
 
   token = \"$2\"
 
-  ca_file = \"/root/consul-agent-certs/consul-agent-ca.pem\"
-  cert_file = \"/root/consul-agent-certs/dc1-client-consul-0.pem\"
-  key_file = \"/root/consul-agent-certs/dc1-client-consul-0-key.pem\"
+  ca_file = \"/etc/clusterconfig/consul-agent-certs/consul-agent-ca.pem\"
+  cert_file = \"/etc/clusterconfig/consul-agent-certs/dc1-client-consul-0.pem\"
+  key_file = \"/etc/clusterconfig/consul-agent-certs/dc1-client-consul-0-key.pem\"
 }
 
 tls {
   http = true
   rpc  = true
 
-  ca_file = \"/root/nomad-agent-certs/nomad-agent-ca.pem\"
-  cert_file = \"/root/nomad-agent-certs/global-client-nomad-0.pem\"
-  key_file = \"/root/nomad-agent-certs/global-client-nomad-0-key.pem\"
+  ca_file = \"/etc/clusterconfig/nomad-agent-certs/nomad-agent-ca.pem\"
+  cert_file = \"/etc/clusterconfig/nomad-agent-certs/global-client-nomad-0.pem\"
+  key_file = \"/etc/clusterconfig/nomad-agent-certs/global-client-nomad-0-key.pem\"
 
   verify_server_hostname = true
   verify_https_client    = true
 }
-" >> /etc/nomad.d/client.hcl
+" | sudo tee /etc/nomad.d/client.hcl
 
 sudo systemctl enable nomadclient
 sudo systemctl start nomadclient
