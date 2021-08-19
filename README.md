@@ -20,7 +20,11 @@ This configuration:
 5. Configure DNS
    1. Create an A record to point the rails domain to the nginx node's IP address
    2. Create an A record to point the docker domain to the nginx node's IP address as well
-6. Run the provided ssl provision script (in `nomadserver` ) on the nginx node.
+6. Run the provided ssl provision script (in `nomadserver` ) on the nginx node. You'll need to update the domains list and copy it to the node.
+   - `ssh root@{rails domain}`
+   - Copy the `provision_nginx_ssl.sh` script to the node
+   - Run it: `bash provision_nginx_ssl.sh`
+   - Copy the `renew_nging_ssl.sh` script to the node and run it: `bash renew_nginx_ssl.sh`. This will reload nginx and make the certs available.
    - To enable automatic cert renewals, add the provided `renew_nginx_ssl.sh` script to the server and run it weekly via crontab.
 
 ### Prepare the Rails app
@@ -31,10 +35,11 @@ This configuration:
    1.  `bundle install`
    2.  `yarn install`
    3.  `yarn build`
-10. Log in to docker
-   4. `docker login <DOCKER_DOMAIN>`. User: 'docker', password: same the input to `htpasswd` when generating {docker_pass_encrypted}
+10. Log in to docker and set the credentials for use by Waypoint
+    1. `docker login <DOCKER_DOMAIN>`. User: 'docker', password: same the input to `htpasswd` when generating {docker_pass_encrypted}
+    2. Create `dockerAuth.json` (following the example of `dockerAuth.example.json`)
 11. Add nomad variables to your ENV
-   5. `source nomadserver/nomad.sh` or similar, in the same shell used for the WikiEduDashboard waypoint commands below.
+    1. `source nomadserver/nomad.sh` or similar, in the same shell used for the WikiEduDashboard waypoint commands below.
 12. Run `waypoint init` to generate the job templates.
 13. Build and deploy
     1.  `waypoint up` generates a Docker image, pushes it to the registry, and deploys it to all the web and sidekiq jobs
