@@ -46,7 +46,13 @@ variable "docker_domain" {
 variable "rails_domain" {
   type = string
   description = "FQDN where the Rails app will be hosted"
-  default = "www.wikiedu.org"
+  default = "dashboard.wikiedu.org"
+}
+
+variable "nomad_domain" {
+  type = string
+  description = "Domain for the Nomad UI"
+  default = "nomad.wikiedu.org"
 }
 
 variable "letsencrypt_email" {

@@ -64,6 +64,8 @@ job "nginx" {
       env {
         WIKIED_DOCKER_DN = "${ docker_domain }"
         WIKIED_RAILS_DN = "${ rails_domain }"
+        WIKIED_NOMAD_DN = "${ nomad_domain }"
+        WIKIED_NOMAD_IP = "${ nomad_server_ip_address }"
       }
 
       template {
@@ -102,6 +104,18 @@ server {
   }
 }
 
+server {
+  listen 80;
+  server_name {{ or (env "WIKIED_NOMAD_DN") "127.0.0.1" }};
+
+  location /.well-known/acme-challenge/ {
+    root /etc/letsencrypt/var/{{ or (env "WIKIED_NOMAD_DN") "127.0.0.1" }}/certbot;
+  }
+
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
 
 server {
   listen 443 ssl;
@@ -149,6 +163,27 @@ server {
     proxy_send_timeout 300;
   }
 }
+
+server {
+  listen 443 ssl;
+  server_name {{ or (env "WIKIED_NOMAD_DN") "127.0.0.1" }};
+
+  include /etc/letsencrypt/options-ssl-nginx.conf;
+  ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+  ssl_certificate /etc/letsencrypt/main/nomad-testing.wikiedu.org/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/main/nomad-testing.wikiedu.org/privkey.pem;
+
+  location / {
+      proxy_pass https://{{ env "WIKIED_NOMAD_IP" }}:4646;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_buffering off;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_set_header Origin "$${scheme}://$${proxy_host}";
+  }
+}
+
 EOF
 
         destination   = "local/load-balancer.conf"

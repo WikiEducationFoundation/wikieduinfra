@@ -18,8 +18,9 @@ This configuration:
 4. `terragrunt run-all apply`
    1. At this point, you can reach the Nomad UI by via `https://{nomad_server_ip_address}:4646`. The required ACL token Secret ID is the `nomad_mgmt_token`, also available on the Nomad server in `/root/bootstrap.token`.
 5. Configure DNS
-   1. Create an A record to point the rails domain to the nginx node's IP address
-   2. Create an A record to point the docker domain to the nginx node's IP address as well
+   1. Create an A record to point the **rails domain** to the nginx node's IP address
+   2. Create an A record to point the **docker domain** to the nginx node's IP address
+   3. Create an A record to point the **nomad domain** to the nginx node's IP address 
 6. Run the provided ssl provision script (in `nomadserver` ) on the nginx node. You'll need to update the domains list and copy it to the node.
    - `ssh root@{rails domain}`
    - Copy the `provision_nginx_ssl.sh` script to the node
@@ -126,3 +127,21 @@ We can also use the backup of the mariadb node to produce a database dump if nee
 * Configure the node to access `/data/mariadb` via mysql/mariadb (not via a container)
 * Use `mysqldump` to generate (and save on your computer) a dashboard.sql file.
 
+### Extending the nginx config
+
+To add a new domain to be handled by the nginx node of an up-and-running cluster:
+
+1. Configure DNS by adding an A record for the new domain / subdomain.
+2. Log in to the nginx node
+3. Manually run the `for $domain in $domains` steps from `provision_agent_nginx.sh` to set up dummy certs. (Replace the variables as needed.)
+4. In `nginx.hcl.tmpl`, add a new port 80 server for the new domain (you can hard-code the domain at this stage), then deploy it and confirm that the rails domain still works. (If it doesn't come back online after a short period of downtime, there may be an error in the config, so you should undo the change and re-deploy the nginx job immediately.)
+5. Add the new domain to the server copy of `provision_nginx_ssl.sh` and run it, verifying that the certificate for the new domain was successfully installed.
+6. Run the `renew_nginx_ssl.sh` script to make the cert live
+7. Add a port 443 entry for the new domain to `nginx.hcl.tmpl`, then deploy it and confirm it works.
+
+Once the template code is updated and working, update the codebase to incorporate the new domain automatically for new clusters:
+
+1. Update the data flow for variables, starting from the `nginx.hcl.tpl` file and going through `linode/main.tf` to the variables and secrets files. Replace any hard-coded values with variables.
+2. Update `provision_nginx_ssl.sh` to include an additional domain.
+3. Update `provision_agent_nginx.sh` and its call site in the `linode/main.tf` provisioner to handle the additional argument.
+4. Update the README to include DNS for the new domain.

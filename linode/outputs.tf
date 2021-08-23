@@ -22,6 +22,10 @@ output "rails_domain" {
   value = var.rails_domain
 }
 
+output "nomad_domain" {
+  value = var.nomad_domain
+}
+
 # The following are all connected to the Linode sizes you chose for the various
 # nodes.
 output "db_cpu_hertz" {

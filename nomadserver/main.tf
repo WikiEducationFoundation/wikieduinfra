@@ -240,6 +240,8 @@ resource "nomad_job" "nginx" {
               {
                 "docker_domain" = var.docker_domain
                 "rails_domain" = var.rails_domain
+                "nomad_domain" = var.nomad_domain
+                "nomad_server_ip_address" = var.nomad_server_ip_address
               }
             )
 }

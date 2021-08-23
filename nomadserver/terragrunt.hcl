@@ -17,6 +17,7 @@ dependency "linode" {
     memcache_memory = "1"
     docker_domain = "1"
     rails_domain = "1"
+    nomad_domain = "1"
     consul_mgmt_token = "1"
     docker_pass_encrypted = "1"
   }
@@ -35,6 +36,7 @@ inputs = {
   memcache_memory = dependency.linode.outputs.memcache_memory
   docker_domain = dependency.linode.outputs.docker_domain
   rails_domain = dependency.linode.outputs.rails_domain
+  nomad_domain = dependency.linode.outputs.nomad_domain
 }
 
 terraform {

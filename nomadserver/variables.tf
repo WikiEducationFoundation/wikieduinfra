@@ -67,3 +67,7 @@ variable "docker_domain" {
 variable "rails_domain" {
   type = string
 }
+
+variable "nomad_domain" {
+  type = string
+}

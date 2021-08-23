@@ -311,7 +311,7 @@ resource "linode_instance" "nginx_node" {
       "chmod +x provision_agent.sh",
       "./provision_agent.sh nginx ${var.consul_mgmt_token} ${var.consul_gossip_token} ${linode_instance.nomad_server.ip_address} ${var.new_relic_license_key} ${var.new_relic_license_key}",
       "chmod +x provision_agent_nginx.sh",
-      "./provision_agent_nginx.sh nginx ${var.consul_mgmt_token} ${var.rails_domain} ${var.docker_domain} ${var.letsencrypt_email}"
+      "./provision_agent_nginx.sh nginx ${var.consul_mgmt_token} ${var.rails_domain} ${var.docker_domain} ${var.nomad_domain} ${var.letsencrypt_email}"
     ]
 
     connection {

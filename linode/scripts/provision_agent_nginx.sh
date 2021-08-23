@@ -59,10 +59,10 @@ sudo systemctl start nomadclient
 # We need dummy certs and to DL the suggested SSL params
 # otherwise nginx container will NOT start
 
-domains=("$3" "$4")
+domains=("$3" "$4" "$5")
 rsa_key_size=4096
 data_path="/etc/letsencrypt"
-email="$5"
+email="$6"
 
 echo "### Downloading recommended TLS parameters ..."
 curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf > "$data_path/options-ssl-nginx.conf"
