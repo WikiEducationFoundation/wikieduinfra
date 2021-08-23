@@ -31,10 +31,12 @@ This configuration:
 
 7. Clone a fresh copy of the WikiEduDashboard app in a new directory
 8. Create `application.yml` and `database.yml` to match what will run in the cloud. (These will be included in the Docker image that gets deployed.)
-9. Install the gems and node modules, then build the production assets:
-   1.  `bundle install`
-   2.  `yarn install`
-   3.  `yarn build`
+   1. The username, password, and production database name in `database.yml` must match up with the values from `mariadb.hcl.tmpl`.
+   2. `application.yml` must have `hashistack: 'true'` (at least, until the `production.rb` file is set to enable public file server by default).
+9.  Install the gems and node modules, then build the production assets:
+   3.  `bundle install`
+   4.  `yarn install`
+   5.  `yarn build`
 10. Log in to docker and set the credentials for use by Waypoint
     1. `docker login <DOCKER_DOMAIN>`. User: 'docker', password: same the input to `htpasswd` when generating {docker_pass_encrypted}
     2. Create `dockerAuth.json` (following the example of `dockerAuth.example.json`)
@@ -46,9 +48,9 @@ This configuration:
     2.  `waypoint build` just generates a Docker image and pushes it to the registry at the docker domain
     3.  `waypoint deploy` just deploys the latest image as a set of jobs for web and sidekiq
 
-### Transfer data
+### Transfer data (unless starting from scratch)
 
-14. Copy the database (unless starting from scratch)
+14. Copy the database
     1.  Use SCP to transfer a gzipped copy of the database to the mariadb node (after adding an SSH pubkey from the source machine to the authorized_keys file on the node.)
     2.  Copy the database file into the mariadb container using `docker copy`
     3.  Log in to the docker container (eg `docker exec -it 0323b53c064e /bin/bash`
@@ -58,6 +60,15 @@ This configuration:
     2.  Get it to the node: `scp -r system/ 45.33.51.69:/root/database_transfer/`
     3.  Change the permissions so that the docker user can write to it: `chmod -R 777 system`
     4.  Get it into docker: `docker cp system 13a78c00206f:/workspace/public/`
+
+### Create database (if starting from scratch)
+
+16. Prepare the database
+    1.  Log in or exec into a rails container
+    2.  `/cnb/lifecycle/launcher rails db:migrate`
+17. Create the default campaign
+    1.  `/cnb/lifecycle/launcher rails c`
+    2.  `Campaign.create(title: 'Default Campaign', slug: ENV['default_campaign'])`
 
 ## Binaries required
 
