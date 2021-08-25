@@ -171,8 +171,8 @@ server {
   include /etc/letsencrypt/options-ssl-nginx.conf;
   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-  ssl_certificate /etc/letsencrypt/main/nomad-testing.wikiedu.org/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/main/nomad-testing.wikiedu.org/privkey.pem;
+  ssl_certificate /etc/letsencrypt/main/{{ or (env "WIKIED_NOMAD_DN") "127.0.0.1" }}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/main/{{ or (env "WIKIED_NOMAD_DN") "127.0.0.1" }}/privkey.pem;
 
   location / {
       proxy_pass https://{{ env "WIKIED_NOMAD_IP" }}:4646;
