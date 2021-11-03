@@ -10,13 +10,20 @@ This configuration:
 
 ## Steps to Spin Up a New Datacenter
 
+### Preparation
+
+1. If you already use `waypoint` to manage another cluster, clear the context before you begin: `waypoint context clear`. Also, make sure your contexts (found in `$/.config/waypoint`) are named well. The provisioning script will create a new context with a name like `install-#######`.
+
 ### Create and provision the servers
 
 1. Create a `secrets.tfvars` file in the `linode` and `nomadservers` directories. See `secrets.tfvars.example` and `variables.tf` for more information.
 2. Ensure all binaries (below) are on your `PATH`
 3. `terragrunt run-all init`
 4. `terragrunt run-all apply`
-   1. At this point, you can reach the Nomad UI by via `https://{nomad_server_ip_address}:4646`. The required ACL token Secret ID is the `nomad_mgmt_token`, also available on the Nomad server in `/root/bootstrap.token`.
+   1. This command will create all the required server nodes (`linode_instance` resources) followed by several non-Rails services (`nomad_job` and `consul_config_entry` resources).
+   2. Using a `null_resource`, it will locally generate `nomad.sh`, which contains the data needed to post additional jobs (ie, the Rails jobs) to the cluster.
+   3. Using a `null_resource`, it will install a waypoint server and runner onto one of the nodes. The `null_resource`s are normally only provisioned once, and then have entries in a `terraform.tfstate` file. If you need to re-run one of these, you can delete the corresponding resource entry from the `.tfstate` file.
+   4. At this point, you can reach the Nomad UI by via `https://{nomad_server_ip_address}:4646`. The required ACL token Secret ID is the `nomad_mgmt_token`, also available on the Nomad server in `/root/bootstrap.token`.
 5. Configure DNS
    1. Create an A record to point the **rails domain** to the nginx node's IP address
    2. Create an A record to point the **docker domain** to the nginx node's IP address
