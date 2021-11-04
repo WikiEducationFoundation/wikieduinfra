@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
 
+# This script configures the nomad client for a generic node.
+# It includes a host volume named the same as the node name.
+
+echo "Configuring nomad client via provision_agent_generic.sh..."
 sudo mkdir --parents /etc/nomad.d
 sudo chmod 700 /etc/nomad.d
+
+sudo mkdir -p /data/persistence
 
 sudo touch /etc/nomad.d/client.hcl
 sudo echo "client {
   enabled = true
+
+  host_volume \"node-$1\" {
+    path      = \"/data/persistence/\"
+    read_only = false
+  }
 }
 
 datacenter = \"dc1\"
@@ -42,3 +53,5 @@ tls {
 
 sudo systemctl enable nomadclient
 sudo systemctl start nomadclient
+
+echo "END: provision_agent_generic.sh"

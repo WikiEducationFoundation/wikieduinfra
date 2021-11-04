@@ -380,8 +380,8 @@ resource "linode_instance" "nomad_node" {
   }
 
   provisioner "file" {
-    source      = "scripts/provision_agent_novol.sh"
-    destination = "~/provision_agent_novol.sh"
+    source      = "scripts/provision_agent_generic.sh"
+    destination = "~/provision_agent_generic.sh"
 
     connection {
       type     = "ssh"
@@ -395,8 +395,8 @@ resource "linode_instance" "nomad_node" {
     inline = [
       "chmod +x provision_agent.sh",
       "./provision_agent.sh ${count.index} ${var.consul_mgmt_token} ${var.consul_gossip_token} ${linode_instance.nomad_server.ip_address} ${var.new_relic_license_key}",
-      "chmod +x provision_agent_novol.sh",
-      "./provision_agent_novol.sh ${count.index} ${var.consul_mgmt_token}"
+      "chmod +x provision_agent_generic.sh",
+      "./provision_agent_generic.sh ${count.index} ${var.consul_mgmt_token}"
     ]
 
     connection {
