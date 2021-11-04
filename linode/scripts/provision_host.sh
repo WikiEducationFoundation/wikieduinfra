@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-sudo apt-get update -qq
+echo "Provisioning host with provision_host.sh..."
+sudo apt-get update -qq > /dev/null
 
 sudo apt-get install -yq --no-install-recommends \
   apt-transport-https \
@@ -8,18 +9,18 @@ sudo apt-get install -yq --no-install-recommends \
   curl \
   gnupg \
   lsb-release \
-  jq
+  jq > /dev/null
 
 # Install Nomad, systemctl services, Consul
 
-sudo apt-get install -yq --no-install-recommends software-properties-common
+sudo apt-get install -yq --no-install-recommends software-properties-common > /dev/null
 
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update
+sudo apt-get update -qq > /dev/null
 # Consul
 
-sudo apt-get install -yq --no-install-recommends consul
+sudo apt-get install -yq --no-install-recommends consul > /dev/null
 
 consul tls ca create
 consul tls cert create -server
@@ -101,7 +102,8 @@ sudo systemctl enable consulserver
 sudo systemctl start consulserver
 
 # Nomad
-sudo apt-get install -yq --no-install-recommends nomad
+echo "Installing Nomad via apt-get"
+sudo apt-get install -yq --no-install-recommends nomad > /dev/null
 
 sudo touch /etc/systemd/system/nomadserver.service
 sudo echo "[Unit]
@@ -194,7 +196,9 @@ echo "license_key: $3\n display_name: linode-server" | sudo tee -a /etc/newrelic
 printf "deb [arch=amd64] https://download.newrelic.com/infrastructure_agent/linux/apt buster main" | sudo tee -a /etc/apt/sources.list.d/newrelic-infra.list && \
 \
 # Update your apt cache \
-sudo apt-get update && \
+sudo apt-get update > /dev/null
 \
 # Run the installation script \
-sudo apt-get install newrelic-infra -y
+sudo apt-get install newrelic-infra -y > /dev/null
+
+echo "END: provision_host.sh"

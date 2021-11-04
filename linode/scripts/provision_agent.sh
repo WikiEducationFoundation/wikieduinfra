@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-sudo apt-get update -qq
+echo "Provisioning via provision_agent.sh..."
+sudo apt-get update -qq > /dev/null
 
 sudo apt-get install -yq --no-install-recommends \
   apt-transport-https \
@@ -9,7 +10,7 @@ sudo apt-get install -yq --no-install-recommends \
   gnupg \
   lsb-release \
   jq \
-  software-properties-common
+  software-properties-common > /dev/null
 
 # AGENT ONLY - Docker
 
@@ -19,9 +20,9 @@ echo \
   "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-sudo apt-get update -qq
-sudo apt-get install -yq --no-install-recommends docker-ce docker-ce-cli containerd.io
-docker run hello-world
+sudo apt-get update > /dev/null
+sudo apt-get install -yq --no-install-recommends docker-ce docker-ce-cli containerd.io > /dev/null
+# docker run hello-world
 
 # AGENT ONLY - CNI plugins
 
@@ -41,7 +42,8 @@ net.bridge.bridge-nf-call-iptables = 1"  >> /etc/sysctl.d/cni
 
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update && sudo apt-get install -yq --no-install-recommends consul
+sudo apt-get update > /dev/null
+sudo apt-get install -yq --no-install-recommends consul > /dev/null
 
 sudo touch /etc/systemd/system/consulclient.service
 sudo echo "[Unit]
@@ -108,7 +110,7 @@ sudo systemctl start consulclient
 
 # Nomad Agent
 
-sudo apt-get install -yq --no-install-recommends nomad
+sudo apt-get install -yq --no-install-recommends nomad > /dev/null
 
 sudo touch /etc/systemd/system/nomadclient.service
 sudo echo "[Unit]
@@ -147,7 +149,9 @@ echo "license_key: $5\n display_name: linode-node-$1" | sudo tee -a /etc/newreli
 printf "deb [arch=amd64] https://download.newrelic.com/infrastructure_agent/linux/apt buster main" | sudo tee -a /etc/apt/sources.list.d/newrelic-infra.list && \
 \
 # Update your apt cache \
-sudo apt-get update && \
+sudo apt-get update > /dev/null
 \
 # Run the installation script \
-sudo apt-get install newrelic-infra -y
+sudo apt-get install newrelic-infra -y > /dev/null
+
+echo "END: provision_agent.sh"
