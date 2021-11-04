@@ -152,3 +152,15 @@ Once the template code is updated and working, update the codebase to incorporat
 2. Update `provision_nginx_ssl.sh` to include an additional domain.
 3. Update `provision_agent_nginx.sh` and its call site in the `linode/main.tf` provisioner to handle the additional argument.
 4. Update the README to include DNS for the new domain.
+
+### Upgrading nomad, consul and waypoint
+
+On both server and clients, `nomad` is installed the Debian way and can be upgraded through `apt` (followed by restarting the service).
+
+Upgrade server first:
+    1. As root on the instance, `apt update`, `apt install nomad` (or specify the version, like `nomad=1.1.6`)
+    2. `systemctl restart nomadserver`
+
+Then upgrade each client:
+    1. As root on the instance, `apt update`, `apt install nomad` (as above)
+    2. `systemctl restart nomadclient`
