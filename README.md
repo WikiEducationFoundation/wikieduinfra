@@ -164,3 +164,24 @@ Upgrade server first:
 Then upgrade each client:
     1. As root on the instance, `apt update`, `apt install nomad` (as above)
     2. `systemctl restart nomadclient`
+
+### Changing nomad configs
+
+The provisioning scripts are normally just run at the time a resource (ie, a server) is created by Terraform, and those scripts include the nomad client.hcl configs that specify host volumes and certs for consul networking. If you need to change any of these configs, you'll need to edit the corresponding config files on the resources and then restart the `nomadclient` service.
+
+### Shuffling jobs across nomad clients
+
+Sometimes, jobs that could be running anywhere end up on a client that is supposed to be for specific jobs (eg, the railsweb client or the nginx client). You can get them to move to a different client via the nomad UI:
+
+* From the Clients view, go to the client that is hosting a job it shouldn't be.
+* Turn off the 'Eligible' toggle, which will prevent jobs from being placed there (but won't affect running jobs).
+* Stop the misplaced job, then start it again. It should get allocated to a different client.
+* Turn the 'Eligible' toggle back on. Now it's ready to run the jobs it ought to be running.
+
+### Managing jobs
+
+Most of the core jobs are managed through terraform and have their own `.hcl.tmpl` files. However, the waypoint-server and waypoint-runner jobs are set up once during waypoint server installation, and will only be updated if you upgrade or reinstall the waypoint server, or manually interact with the jobs. Once you source the `nomad.sh` file, you can use `nomad` locally to interact with the cluster and its job allocations. Useful commands include:
+
+* `nomad job status` - list all the allocated jobs
+* `nomad job stop waypoint-server` - kill a job
+* `nomad system gc` - run the garbage collector to clear out dead jobs and clients
