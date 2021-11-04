@@ -291,7 +291,7 @@ resource "null_resource" "nomad_shell" {
 
 resource "null_resource" "waypoint" {
   provisioner "local-exec" {
-    command = "waypoint install -platform=nomad -nomad-dc=dc1 -accept-tos -nomad-host-volume=node-0"
+    command = "waypoint install -platform=nomad -nomad-server-image=hashicorp/waypoint:latest -nomad-dc=dc1 -accept-tos -nomad-host-volume=node-0"
     environment = {
       NOMAD_ADDR="https://${var.nomad_server_ip_address}:4646"
       NOMAD_TOKEN=var.nomad_mgmt_token
