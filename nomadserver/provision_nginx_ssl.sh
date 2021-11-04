@@ -1,6 +1,6 @@
 # Run this on the nginx node, not inside the docker container for nginx
 # Change below line to your desired domains
-domains=("dashboard.wikiedu.org" "docker.wikiedu.org" "nomad.wikiedu.org")
+domains=("rails-testing.wikiedu.org" "docker-testing.wikiedu.org" "nomad-testing.wikiedu.org")
 rsa_key_size=4096
 data_path="/etc/letsencrypt"
 email="sage@wikiedu.org" # Adding a valid address is strongly recommended
