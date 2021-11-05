@@ -155,19 +155,25 @@ Once the template code is updated and working, update the codebase to incorporat
 
 ### Upgrading nomad, consul and waypoint
 
-On both server and clients, `nomad` is installed the Debian way and can be upgraded through `apt` (followed by restarting the service).
+On both server and clients, `nomad` is installed the Debian way and can be upgraded through `apt` (followed by restarting the service). (See also https://www.nomadproject.io/docs/upgrade)
 
-Upgrade server first:
+Upgrade `nomad_server` instance first:
     1. As root on the instance, `apt update`, `apt install nomad` (or specify the version, like `nomad=1.1.6`)
     2. `systemctl restart nomadserver`
 
-Then upgrade each client:
+Then upgrade each client instance:
     1. As root on the instance, `apt update`, `apt install nomad` (as above)
     2. `systemctl restart nomadclient`
 
+Upgrading `consul` is basically the same (https://www.consul.io/docs/upgrading), but you should do `consul leave` before restarting `consulserver` / `consulclient`. (This will break networking briefly.)
+
+One way to upgrade `waypoint` is to stop the `waypoint-server` and `waypoint-runner` jobs, clear them out with `nomad system gc`, then delete the installation `null_resource` entry in the tfstate file and run `terragrunt run-all apply` to re-provision it with a fresh server.
+
+Upgrades to `nomad` and `waypoint` upgrades do not appear to cause any service disruption, while `consul` upgrades cause brief downtime while networking is broken.
+
 ### Changing nomad configs
 
-The provisioning scripts are normally just run at the time a resource (ie, a server) is created by Terraform, and those scripts include the nomad client.hcl configs that specify host volumes and certs for consul networking. If you need to change any of these configs, you'll need to edit the corresponding config files on the resources and then restart the `nomadclient` service.
+The provisioning scripts are normally just run at the time a resource (ie, a server) is created by Terraform, and those scripts include the nomad client.hcl configs that specify host volumes and certs for consul networking. If you need to change any of these configs, you'll need to edit the corresponding config files on the resources and then restart the `nomadclient` service. (This will not restart running job containers.)
 
 ### Shuffling jobs across nomad clients
 
