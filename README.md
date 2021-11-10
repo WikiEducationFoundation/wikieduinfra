@@ -80,11 +80,11 @@ This configuration:
 
 ## Binaries required
 
-1. Waypoint (0.3) - https://www.waypointproject.io/
-2. Terraform (0.15) - https://www.terraform.io/
-3. Terragrunt (0.28.24) - https://terragrunt.gruntwork.io/
-4. Consul - https://www.consul.io/ 
-5. Nomad - https://www.nomadproject.io/
+1. Waypoint (0.6.2) - https://www.waypointproject.io/
+2. Terraform (1.0.10) - https://www.terraform.io/
+3. Terragrunt (0.35.6) - https://terragrunt.gruntwork.io/
+4. Consul (1.10.3) - https://www.consul.io/ 
+5. Nomad (1.1.6) - https://www.nomadproject.io/
 6. `ssh-keyscan`, `jq`, `scp` and `htpasswd` (provided by apache2-utils on Debian)
 
 ## Interacting with Terraform resources
