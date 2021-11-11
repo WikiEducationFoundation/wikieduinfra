@@ -25,29 +25,3 @@ output "rails_domain" {
 output "nomad_domain" {
   value = var.nomad_domain
 }
-
-# The following are all connected to the Linode sizes you chose for the various
-# nodes.
-output "db_cpu_hertz" {
-  value = "7500"
-}
-
-output "db_memory" {
-  value = "7500"
-}
-
-output "redis_cpu_hertz" {
-  value = "500"
-}
-
-output "redis_memory" {
-  value = "256"
-}
-
-output "memcache_cpu_hertz" {
-  value = "1500"
-}
-
-output "memcache_memory" {
-  value = "1000"
-}
