@@ -69,3 +69,7 @@ variable "ssh_privkey" {
   type = string
   description = "Local path to the SSH private key for accessing the cluster"
 }
+variable "path_to_certs"{
+  type = string
+  description = "Absolute path to the directory containing the nomad/consul certs (which are generated on the nomad server via the provisioning script, then copied to your local machine)"
+}

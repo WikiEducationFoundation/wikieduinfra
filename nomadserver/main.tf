@@ -20,9 +20,9 @@ terraform {
 provider "nomad" {
   address = "https://${var.nomad_server_ip_address}:4646"
   secret_id = var.nomad_mgmt_token
-  ca_file = "../certs/nomad-agent-certs/nomad-agent-ca.pem"
-  cert_file = "../certs/nomad-agent-certs/global-client-nomad-0.pem"
-  key_file = "../certs/nomad-agent-certs/global-client-nomad-0-key.pem"
+  ca_file = "${var.path_to_certs}/nomad-agent-certs/nomad-agent-ca.pem"
+  cert_file = "${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0.pem"
+  key_file = "${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0-key.pem"
 }
 
 # Consul, for creating intentions
@@ -31,9 +31,9 @@ provider "consul" {
   address = "${var.nomad_server_ip_address}:8501"
   scheme = "https"
   token = var.consul_mgmt_token
-  ca_file = "../certs/consul-agent-certs/consul-agent-ca.pem"
-  cert_file = "../certs/consul-agent-certs/dc1-client-consul-0.pem"
-  key_file = "../certs/consul-agent-certs/dc1-client-consul-0-key.pem"
+  ca_file = "${var.path_to_certs}/consul-agent-certs/consul-agent-ca.pem"
+  cert_file = "${var.path_to_certs}/consul-agent-certs/dc1-client-consul-0.pem"
+  key_file = "${var.path_to_certs}/consul-agent-certs/dc1-client-consul-0-key.pem"
   insecure_https = true
 }
 
@@ -280,9 +280,9 @@ resource "null_resource" "nomad_shell" {
     echo "
       export NOMAD_ADDR="https://${var.nomad_server_ip_address}:4646"
       export NOMAD_TOKEN=${var.nomad_mgmt_token}
-      export NOMAD_CA_PATH="${abspath(path.root)}/../certs/nomad-agent-certs/nomad-agent-ca.pem"
-      export NOMAD_CLIENT_CERT="${abspath(path.root)}/../certs/nomad-agent-certs/global-client-nomad-0.pem"
-      export NOMAD_CLIENT_KEY="${abspath(path.root)}/../certs/nomad-agent-certs/global-client-nomad-0-key.pem"
+      export NOMAD_CA_PATH="${var.path_to_certs}/nomad-agent-certs/nomad-agent-ca.pem"
+      export NOMAD_CLIENT_CERT="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0.pem"
+      export NOMAD_CLIENT_KEY="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0-key.pem"
       export NOMAD_SKIP_VERIFY="true"
     " >> nomad.sh
     EOF
@@ -295,9 +295,9 @@ resource "null_resource" "waypoint" {
     environment = {
       NOMAD_ADDR="https://${var.nomad_server_ip_address}:4646"
       NOMAD_TOKEN=var.nomad_mgmt_token
-      NOMAD_CA_PATH="${abspath(path.root)}/../certs/nomad-agent-certs/nomad-agent-ca.pem"
-      NOMAD_CLIENT_CERT="${abspath(path.root)}/../certs/nomad-agent-certs/global-client-nomad-0.pem"
-      NOMAD_CLIENT_KEY="${abspath(path.root)}/../certs/nomad-agent-certs/global-client-nomad-0-key.pem"
+      NOMAD_CA_PATH="${var.path_to_certs}/nomad-agent-certs/nomad-agent-ca.pem"
+      NOMAD_CLIENT_CERT="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0.pem"
+      NOMAD_CLIENT_KEY="${var.path_to_certs}/nomad-agent-certs/global-client-nomad-0-key.pem"
       NOMAD_SKIP_VERIFY="true"
     }
   }

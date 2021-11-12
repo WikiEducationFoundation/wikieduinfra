@@ -71,3 +71,6 @@ variable "rails_domain" {
 variable "nomad_domain" {
   type = string
 }
+variable "path_to_certs" {
+  type = string
+}

@@ -10,3 +10,7 @@ remote_state {
     path = "${path_relative_to_include()}/terraform.tfstate"
   }
 }
+
+inputs = {
+  path_to_certs = abspath("./certs")
+}

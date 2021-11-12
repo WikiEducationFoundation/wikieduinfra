@@ -25,6 +25,7 @@ inputs = {
   docker_domain = dependency.linode.outputs.docker_domain
   rails_domain = dependency.linode.outputs.rails_domain
   nomad_domain = dependency.linode.outputs.nomad_domain
+  path_to_certs = abspath("./certs")
 }
 
 terraform {
