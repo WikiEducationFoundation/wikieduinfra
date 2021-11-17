@@ -9,6 +9,9 @@
 # We can also 'imageize' a backup disk after replicating it to a new node, in order to provide a persistent
 # backup that is independent of the node.
 
+# We can also download the disk image from the backup node, following the instructions here:
+# https://www.linode.com/docs/guides/copying-a-disk-image-over-ssh/
+
 
 require 'json'
 require 'open3'
