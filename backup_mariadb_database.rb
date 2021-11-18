@@ -12,6 +12,8 @@
 # We can also download the disk image from the backup node, following the instructions here:
 # https://www.linode.com/docs/guides/copying-a-disk-image-over-ssh/
 
+# Before running this, run `linode-cli linodes list` to make sure you're  logged in to the right account
+# and the linode-cli client is up to date.
 
 require 'json'
 require 'open3'
