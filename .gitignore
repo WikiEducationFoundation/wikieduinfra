@@ -2,7 +2,9 @@
 terraform.tfstate
 terraform.tfstate.backup
 .terraform/
+.terragrunt-cache/
 *.pem
+allsecrets.tfvars
 secrets.tfvars
 .DS_Store
 crash.log
