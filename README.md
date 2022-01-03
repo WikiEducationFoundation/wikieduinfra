@@ -16,19 +16,22 @@ This configuration:
 
 ### Create and provision the servers
 
-1. Create a `secrets.tfvars` file in the `linode` and `nomadservers` directories. See `secrets.tfvars.example` and `variables.tf` for more information.
-2. Ensure all binaries (below) are on your `PATH`
-3. `terragrunt run-all init`
-4. `terragrunt run-all apply`
+
+1. Enter the directory for the environment you're working on (eg, environments/staging or environments/production)
+2. Create a `secrets.tfvars` file in the `linode` and `nomadservers` directories. See `secrets.tfvars.example` and `variables.tf` for more information.
+3. Ensure all binaries (below) are on your `PATH`
+4. `terragrunt run-all init`
+5. `terragrunt run-all apply`
    1. This command will create all the required server nodes (`linode_instance` resources) followed by several non-Rails services (`nomad_job` and `consul_config_entry` resources).
    2. Using a `null_resource`, it will locally generate `nomad.sh`, which contains the data needed to post additional jobs (ie, the Rails jobs) to the cluster.
    3. Using a `null_resource`, it will install a waypoint server and runner onto one of the nodes. The `null_resource`s are normally only provisioned once, and then have entries in a `terraform.tfstate` file. If you need to re-run one of these, you can delete the corresponding resource entry from the `.tfstate` file.
    4. At this point, you can reach the Nomad UI by via `https://{nomad_server_ip_address}:4646`. The required ACL token Secret ID is the `nomad_mgmt_token`, also available on the Nomad server in `/root/bootstrap.token`.
-5. Configure DNS
+6. Check for the file `nomadserver/nomad.sh`. If it's not present, you may need to copy it over from the `nomadserver/.terragrunt-cache` directory. (This is a bug.) 
+7. Configure DNS
    1. Create an A record to point the **rails domain** to the nginx node's IP address
    2. Create an A record to point the **docker domain** to the nginx node's IP address
    3. Create an A record to point the **nomad domain** to the nginx node's IP address 
-6. Run the provided ssl provision script (in `nomadserver` ) on the nginx node. You'll need to update the domains list and copy it to the node.
+8. Run the provided ssl provision script (in `nomadserver` ) on the nginx node. You'll need to update the domains list and copy it to the node.
    - `ssh root@{rails domain}`
    - Copy the `provision_nginx_ssl.sh` script to the node
    - Run it: `bash provision_nginx_ssl.sh`
@@ -49,7 +52,7 @@ This configuration:
     1. `docker login <DOCKER_DOMAIN>`. User: 'docker', password: same the input to `htpasswd` when generating {docker_pass_encrypted}
     2. Create `dockerAuth.json` (following the example of `dockerAuth.example.json`)
 11. Add nomad variables to your ENV
-    1. `source nomadserver/nomad.sh` or similar, in the same shell used for the WikiEduDashboard waypoint commands below.
+    1. `source wikieduinfra/environments/staging/nomadserver/nomad.sh` or similar, in the same shell used for the WikiEduDashboard waypoint commands below.
 12. Run `waypoint init` to generate the job templates.
 13. Build and deploy
     1.  `waypoint up` generates a Docker image, pushes it to the registry, and deploys it to all the web and sidekiq jobs

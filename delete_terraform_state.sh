@@ -12,3 +12,5 @@ rm -rf nomadserver/.terraform
 rm -rf nomadserver/nomadserver
 rm nomadserver/.terraform.lock.hcl
 rm nomadserver/nomad.sh
+rm -rf linode/.terragrunt-cache
+rm -rf nomadserver/.terragrunt-cache
