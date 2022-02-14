@@ -36,7 +36,9 @@ This configuration:
    - Copy the `provision_nginx_ssl.sh` script to the node
    - Run it: `bash provision_nginx_ssl.sh`
    - Copy the `renew_nging_ssl.sh` script to the node and run it: `bash renew_nginx_ssl.sh`. This will reload nginx and make the certs available.
-   - To enable automatic cert renewals, add the provided `renew_nginx_ssl.sh` script to the server and run it weekly via crontab.
+   - To enable automatic cert renewals, add the provided `renew_nginx_ssl.sh` script to the server and run it weekly via crontab:
+     - `crontab -e`
+     - add: `3 6 * * 1       /root/renew_nginx_ssl.sh > /root/certbot_renew.log 2>&1`
 
 ### Prepare the Rails app
 
